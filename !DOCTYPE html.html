@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>3 Month Study Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --primary:#2563eb;
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --done:#16a34a;
+}
+body{
+  margin:0;
+  font-family:system-ui, sans-serif;
+  background:var(--bg);
+}
+header{
+  background:var(--primary);
+  color:white;
+  padding:16px;
+  text-align:center;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:16px;
+}
+.progress-box{
+  background:var(--card);
+  padding:16px;
+  border-radius:10px;
+  margin-bottom:16px;
+}
+.progress-bar{
+  height:14px;
+  background:#e5e7eb;
+  border-radius:10px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:var(--done);
+  width:0%;
+  transition:.4s;
+}
+.subject{
+  background:var(--card);
+  margin-bottom:12px;
+  border-radius:10px;
+  overflow:hidden;
+}
+.subject h3{
+  margin:0;
+  padding:12px;
+  background:#e0e7ff;
+}
+.chapter{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  border-top:1px solid #e5e7eb;
+}
+.chapter.done{
+  display:none;
+}
+.week-info{
+  font-size:14px;
+  color:#334155;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>📘 3 Month Study Tracker</h1>
+  <p>বাংলা + English | Auto Progress System</p>
+</header>
+
+<div class="container">
+
+<div class="progress-box">
+  <h3>📊 Overall Progress</h3>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <p id="progressText">0% Completed</p>
+  <p class="week-info" id="weekText"></p>
+</div>
+
+<div id="subjects"></div>
+
+</div>
+
+<script>
+const data = [
+  {
+    subject:"Physics",
+    chapters:[
+      {name:"Vector",week:1},
+      {name:"Newtonian Mechanics",week:3},
+      {name:"Work, Energy & Power",week:4},
+      {name:"Gravitation",week:6},
+      {name:"Thermodynamics",week:9}
+    ]
+  },
+  {
+    subject:"Chemistry",
+    chapters:[
+      {name:"Lab Safety",week:1},
+      {name:"Qualitative Chemistry",week:2},
+      {name:"Quantitative Chemistry",week:5},
+      {name:"Organic Chemistry",week:8}
+    ]
+  },
+  {
+    subject:"Biology",
+    chapters:[
+      {name:"Cell Structure",week:1},
+      {name:"Cell Division",week:2},
+      {name:"Genetics & Evolution",week:8}
+    ]
+  },
+  {
+    subject:"ICT",
+    chapters:[
+      {name:"Number System",week:1},
+      {name:"HTML & Web Design",week:3},
+      {name:"Programming Language",week:6}
+    ]
+  }
+];
+
+const subjectsDiv=document.getElementById("subjects");
+
+function load(){
+  subjectsDiv.innerHTML="";
+  let doneCount=0;
+  let totalCount=0;
+
+  data.forEach((sub,si)=>{
+    const sDiv=document.createElement("div");
+    sDiv.className="subject";
+    sDiv.innerHTML=`<h3>${sub.subject}</h3>`;
+    sub.chapters.forEach((ch,ci)=>{
+      totalCount++;
+      const key=`${si}-${ci}`;
+      const done=localStorage.getItem(key)==="1";
+      if(done) doneCount++;
+
+      const cDiv=document.createElement("div");
+      cDiv.className="chapter"+(done?" done":"");
+      cDiv.innerHTML=`
+        <span>📌 ${ch.name} <small>(Week ${ch.week})</small></span>
+        <input type="checkbox" ${done?"checked":""}>
+      `;
+      cDiv.querySelector("input").addEventListener("change",e=>{
+        localStorage.setItem(key,e.target.checked?"1":"0");
+        load();
+      });
+      sDiv.appendChild(cDiv);
+    });
+    subjectsDiv.appendChild(sDiv);
+  });
+
+  const percent=Math.round((doneCount/totalCount)*100);
+  document.getElementById("progressFill").style.width=percent+"%";
+  document.getElementById("progressText").innerText=`${percent}% Completed`;
+
+  const start=new Date("2026-01-20");
+  const now=new Date();
+  const days=Math.max(0,Math.floor((now-start)/(1000*60*60*24)));
+  const expected=Math.min(100,Math.round((days/90)*100));
+
+  document.getElementById("weekText").innerText=
+    `⏳ Expected by now: ${expected}% | Your Progress: ${percent}%`;
+}
+load();
+</script>
+
+</body>
+</html>
